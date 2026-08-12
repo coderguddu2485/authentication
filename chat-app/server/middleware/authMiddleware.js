@@ -15,6 +15,7 @@ const authMiddleware = (req, res, next) => {
         message: "Authentication token missing",
       });
     }
+    console.log("Token received:", token);
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     req.user = decoded;
@@ -22,12 +23,12 @@ const authMiddleware = (req, res, next) => {
 
     console.log(token);
     console.log("Authentication Middleware Running");
-    next();
+    next(); 
   } catch (error) {
     return res.status(401).json({
       success: false,
       message: "Invalid or expired token",
-      
+
     });
   }
 };

@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const authMiddleware = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -25,6 +26,8 @@ const authMiddleware = (req, res, next) => {
     console.log("Authentication Middleware Running");
     next(); 
   } catch (error) {
+
+    console.log("JWT ERROR:", error.message);
     return res.status(401).json({
       success: false,
       message: "Invalid or expired token",

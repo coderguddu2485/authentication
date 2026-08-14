@@ -12,6 +12,9 @@ app.use(express.json());
 const authRoutes = require("./routes/authRoutes");
 
 app.use("/api/auth", authRoutes);
+const errorMiddleware = require("./middleware/errorMiddleware");
+
+app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;
 

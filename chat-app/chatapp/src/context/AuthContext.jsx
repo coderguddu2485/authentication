@@ -1,71 +1,67 @@
-import { createContext ,useEffect,useState } from "react";b
+import { createContext, useEffect, useState } from "react";
+b;
 import api from "../services/api";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const login = async (email, password) => {
+    const response = await api.post("/auth/login", {
+      email,
+      password,
+    });
 
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const login = async (email, password) => {
+    const data = response.data;
 
-        const response = await api.post(
-            "/auth/login",
-            {
-                email,
-                password
-            }
-        );
+    if (data.success) {
+      localStorage.setItem("token", data.token);
+      const profileResponse = await api.get("/auth/profile");
+      setUser(profileResponse.data.user);
+    }
 
-        const data = response.data;
+    return data;
+  };
 
-        if (data.success) {
-            localStorage.setItem("token", data.token);
-            const profileResponse = await api.get("/auth/profile");
-            setUser(profileResponse.data.user);
-        }
-
-        return data;
-    };
-
-    const getProfile = async () => {
+  const getProfile = async () => {
     try {
-        const response = await api.get("/auth/profile");
+      const response = await api.get("/auth/profile");
 
-        setUser(response.data.user);
-
+      setUser(response.data.user);
     } catch (error) {
-        localStorage.removeItem("token");
-        setUser(null);
-
+      localStorage.removeItem("token");
+      setUser(null);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
 
-       useEffect(() => {
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
-        const token =
-            localStorage.getItem("token");
-
-        if (token) {
-            getProfile();
-        }else {
-        setLoading(false);
+    if (token) {
+      getProfile();
+    } else {
+      setLoading(false);
     }
+  }, []);
 
-    }, []);
-
-    return (
-        <AuthContext.Provider
-            value={{
-                user,
-                setUser,
-                login
-            }}
-        >
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        setUser,
+        login,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export default AuthContext;
